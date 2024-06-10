@@ -1,8 +1,10 @@
 using InfraNmodels.Interface;
+using InfraNmodels.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System.Text.Json.Nodes;
 
 namespace HelloAPIM
@@ -23,14 +25,14 @@ namespace HelloAPIM
             _logger.LogInformation("C# HTTP trigger function processed a request.");
             var content = await new StreamReader(req.Body).ReadToEndAsync();
             //var stringContent = new StringContent(JsonObject.Parse(content).ToString(),System.Text.Encoding.UTF8);
+            //JsonConvert.DeserializeObject<TemplateProperties>(content);
             var expirationTime = DateTimeOffset.Now.AddMinutes(5.0);
             
-            var isSet = _redisCache.SetCacheData("Kek01", "hello world", expirationTime);
+            var isSet = _redisCache.SetCacheData("Kek01", content, expirationTime);
             string storedValue = string.Empty;
             if(isSet)
             {
                 storedValue = _redisCache.GetCacheData<string>("Kek01");
-                _redisCache.RemoveData("Kek01");
             }
             //HttpClient httpClient = new HttpClient();
            // await httpClient.PostAsync("https://webhook.site/cc0de999-dc1f-4530-9c6a-8d25a5610b6d", stringContent);
